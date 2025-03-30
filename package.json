@@ -27,6 +27,7 @@
     "pdfkit": "^0.16.0",
     "puppeteer": "^24.4.0",
     "razorpay": "^2.9.6",
+    "slugify": "^1.6.6",
     "uninstall": "^0.0.0"
   },
   "name": "backend",
