@@ -5,14 +5,36 @@ import cors from "cors";
 import morgan from "morgan";
 import errorMiddleware from "./middleware/error.middleware.js";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
+import themeRoute from "./routes/theme.route.js";
 
 config();
 
 // Initialize Express app
 const app = express();
 
+
+// Rate Limiter Middleware
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10, // 1 minute me max 10 requests allow
+  message: "Betichod jaida request kar diye ",
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      error: "Rate limit exceeded",
+      message: "Too many requests, please try again after 4 minutes.",
+      retryAfter: Math.ceil(req.rateLimit.resetTime - Date.now()) + "ms" // Next retry time
+    });
+  }
+});
+
+
 // Multer setup for file uploads
 const upload = multer({ dest: "uploads/" });
+
+// Sabhi API routes ke liye rate limiting lagayenge
+app.use(limiter);
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -41,7 +63,8 @@ app.use(
 app.use(morgan("dev"));
 
 
-// Rotes
+// Routes
+app.use("/api/v1/theme",themeRoute)
 
 
 app.get("/test", (req, res) => {
