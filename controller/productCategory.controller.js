@@ -4,13 +4,11 @@ import AppError from '../utlis/error.utlis.js'
 
 const addProductCategory = async (req, res, next) => {
   try {
-
     const { category } = req.body
 
     if (!category) {
       return next(new AppError("Category is Required", 400))
     }
-
 
     const existingCategory = await ProductCategoryModel.findOne({ category });
     if (existingCategory) {
@@ -60,7 +58,6 @@ const getProductCategory = async (req, res, next) => {
 
 const editCategory = async (req, res, next) => {
   try {
-
     const { id } = req.params
 
     const { category } = req.body

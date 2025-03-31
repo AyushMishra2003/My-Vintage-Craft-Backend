@@ -32,14 +32,14 @@ const ThemeSchema=new Schema(
 
 
 // Pre-Save Middleware
-ThemeSchema.pre("save", function (next) {
-    console.log("mai chala ki nahi babu");
+// ThemeSchema.pre("save", function (next) {
+//     console.log("mai chala ki nahi babu");
     
-    if (this.isModified("themeName")) { 
-        this.themeSlug = slugify(this.themeName, { lower: true, strict: true });
-    }
-    next();
-});
+//     if (this.isModified("themeName")) { 
+//         this.themeSlug = slugify(this.themeName, { lower: true, strict: true });
+//     }
+//     next();
+// });
 
 // Pre-Update Middleware
 ThemeSchema.pre("findOneAndUpdate", function (next) {
