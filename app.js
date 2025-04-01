@@ -7,6 +7,8 @@ import errorMiddleware from "./middleware/error.middleware.js";
 import multer from "multer";
 import rateLimit from "express-rate-limit";
 import themeRoute from "./routes/theme.route.js";
+import brandRouter from "./routes/brand.route.js";
+import productRouter from "./routes/product.routes.js";
 
 config();
 
@@ -65,6 +67,8 @@ app.use(morgan("dev"));
 
 // Routes
 app.use("/api/v1/theme",themeRoute)
+app.use("/api/v1/brand",brandRouter)
+app.use("/api/v1/product",productRouter)
 
 
 app.get("/test", (req, res) => {
