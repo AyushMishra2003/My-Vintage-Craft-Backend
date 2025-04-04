@@ -9,6 +9,8 @@ const addBrandCategory=async(req,res,next)=>{
 
         const {brandName}=req.body
 
+
+
         if(!brandName){
               return next(new AppError("Brand Name Required",400))
         }

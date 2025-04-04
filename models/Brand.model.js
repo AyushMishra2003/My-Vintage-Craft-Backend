@@ -22,4 +22,5 @@ const BrandSchema=new Schema(
 
 const BrandModel=model("Brand-Category",BrandSchema)
 
+
 export default BrandModel

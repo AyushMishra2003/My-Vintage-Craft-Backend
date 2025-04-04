@@ -8,8 +8,8 @@ const themeRoute=Router()
 
 
 themeRoute.post("/",upload.single("photo"),addThemeCategory)
-themeRoute.get('/get/alltheme',getAllThemeCategory)
-themeRoute.put('/update/:id',upload.single("photo"),themeUpdateCategory)
-themeRoute.get('/delete/:id',delete_them)
+themeRoute.get('/',getAllThemeCategory)
+themeRoute.put('/:id',upload.single("photo"),themeUpdateCategory)
+themeRoute.delete('/:id',delete_them)
 
 export default themeRoute

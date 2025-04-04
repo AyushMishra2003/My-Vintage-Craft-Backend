@@ -6,9 +6,9 @@ import cloudinary from 'cloudinary'
 
 const addThemeCategory=async(req,res,next)=>{
      try{
-        console.log("hello boss");
+     
           const {themeName}=req.body
-          console.log(themeName);   
+     
           if(!themeName){
               return(new AppError("Theme Category Required",400))
           }
@@ -26,10 +26,15 @@ const addThemeCategory=async(req,res,next)=>{
                  secure_url:""
              }
           })
+
+          console.log(req.file);
+          
           if (req.file) {
             const result = await cloudinary.v2.uploader.upload(req.file.path, {
               folder: "Category Photo",
             });
+            console.log(result);
+            
             if (result) {
               (addThemeCategory.photo.public_id = result.public_id),
                 (addThemeCategory.photo.secure_url = result.secure_url);
@@ -37,6 +42,8 @@ const addThemeCategory=async(req,res,next)=>{
             // fs.rm(`uploads/${req.file.filename}`);
 
           }
+
+          await addThemeCategory.save()
 
           res.status(200).json({
             success:true,
@@ -76,11 +83,10 @@ const themeUpdateCategory=async(req,res,next)=>{
             const updateTheme=await ThemeModel.findByIdAndUpdate(id,{
                  themeName,
                  themeSlug:slugify(themeName, { lower: true, strict: true }),
-                 photo:{
-                    public_id:"",
-                    secure_url:""
-                 }
+        
             })
+            console.log(req.fil);
+            
               if(req.file){
                  const result=await cloudinary.v2.uploader.upload(req.file.path,{
                   folder:"Category Photo"
@@ -90,6 +96,7 @@ const themeUpdateCategory=async(req,res,next)=>{
                   updateTheme.photo.public_id=result.public_id
                  }
               }
+              await updateTheme.save()
 
               return res.status(200).json({success:true,message:"Theme update succefully",updateTheme})
 
