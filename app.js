@@ -49,15 +49,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:3000",
-      "http://localhost:5174",
-      "https://freelance.webakash1806.com",
-      "https://ayush.webakash1806.com",
-      "https://ucscab.com",
-      "https://master.ucscab.com",
-      "https://drmanasaggrawalji.netlify.app",
-      "https://drmanasdashboard.netlify.app"
+      "https://vintage-craft-dashboard.netlify.app"
+
     ],
     credentials: true,
   })
