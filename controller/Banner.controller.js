@@ -2,7 +2,6 @@ import AppError from "../utlis/error.utlis.js";
 import cloudinary from "cloudinary";
 import fs from "fs/promises";
 import BannerModel from "../models/Banner.model.js";
-import { log } from "console";
 
 
 
@@ -11,14 +10,11 @@ const addBanner = async (req, res, next) => {
 
         const { name, types, index } = req.body
 
-        if (!types) {
-            return next(new AppError("All field are Required", 400))
-        }
+
 
         const createBanner = new BannerModel({
             name,
-            types,
-            index,
+       
             photo: {
                 public_id: "",
                 secure_url: ""
@@ -90,7 +86,6 @@ const editBanner = async (req, res, next) => {
         const { name, types, index,url} = req.body;
 
 
-        console.log(req.body)
 
         if (!id) {
             return next(new AppError("Banner ID is required", 400));
@@ -102,10 +97,7 @@ const editBanner = async (req, res, next) => {
             return next(new AppError("Banner not found", 404));
         }
 
-        // Agar naye fields aaye toh update karo
-        if (name) banner.name = name;
-        if (types) banner.types = types;
-        if (index) banner.index = index;
+
 
         // Agar naye file aaye toh pehle purani file delete karke nayi upload karo
         if (req.file) {
@@ -146,11 +138,7 @@ const editBanner = async (req, res, next) => {
 const getAllBanner = async (req, res, next) => {
     try {
 
-
         const allBanner = await BannerModel.find({})
-
-
-
 
         if (!allBanner) {
             return next(new AppError("Banner not Found", 400))
