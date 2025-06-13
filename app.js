@@ -12,6 +12,8 @@ import productRouter from "./routes/product.routes.js";
 import galleryRoute from "./routes/gallery.route.js";
 import bannerRoute from "./routes/Banner.route.js";
 import blogRoute from "./routes/blog.route.js";
+import productCategoryRouter from "./routes/productCategory.route.js";
+import contactRouter from "./routes/contact.routes.js";
 
 config();
 
@@ -49,6 +51,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+         "http://localhost:5174",
       "https://vintage-craft-dashboard.netlify.app"
 
     ],
@@ -65,10 +68,12 @@ app.use(morgan("dev"));
 app.use("/api/v1/theme",themeRoute)
 app.use("/api/v1/brand",brandRouter)
 app.use("/api/v1/product",productRouter)
+app.use("/api/v1/product/category",productCategoryRouter)
 app.use("/api/v1/gallery",galleryRoute)
 app.use("/api/v1/banner",bannerRoute)
 app.use("/api/v1/blog",blogRoute)
 app.use("/api/v1/gallery",galleryRoute)
+app.use("/api/v1/contact",contactRouter)
 
 
 

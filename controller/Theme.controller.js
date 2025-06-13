@@ -13,7 +13,7 @@ const addThemeCategory=async(req,res,next)=>{
               return(new AppError("Theme Category Required",400))
           }
           const existanceTheme=await ThemeModel.findOne({themeName})
-          console.log(existanceTheme);
+    
           if(existanceTheme){
              return next(new AppError("Theme Category are Already Exist",400))
           }

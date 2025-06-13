@@ -1,6 +1,7 @@
 import slugify from 'slugify'
-import ProductCategoryModel from '../models/productCategory.model'
+import ProductCategoryModel from '../models/productCategory.model.js'
 import AppError from '../utlis/error.utlis.js'
+import { all } from 'axios'
 
 const addProductCategory = async (req, res, next) => {
   try {
@@ -16,11 +17,14 @@ const addProductCategory = async (req, res, next) => {
     }
 
     const addCategory = await ProductCategoryModel.create({
-      category
+      category,
+      categorySlug: slugify(category, { lower: true, strict: true }),
     })
 
 
     await addCategory.save()
+
+
 
     res.status(200).json({
       success: true,
@@ -30,6 +34,8 @@ const addProductCategory = async (req, res, next) => {
 
 
   } catch (error) {
+    console.log(error);
+
     return next(new AppError(error.message, 500))
   }
 }
@@ -44,10 +50,43 @@ const getProductCategory = async (req, res, next) => {
       return next(new AppError("Product Category Not Found", 400))
     }
 
+
+
+
     res.status(200).json({
       success: true,
       message: "Product Category Found",
       data: allProductCategory
+    })
+
+  } catch (error) {
+    return next(new AppError(error.message, 500))
+  }
+}
+
+
+const getProductSubCategory = async (req, res, next) => {
+  try {
+
+    const { category } = req.params
+
+
+
+    const allProductCategory = await ProductCategoryModel.find({ categorySlug: category })
+
+
+    if (!allProductCategory) {
+      return next(new AppError("Product Category Not Found", 400))
+    }
+
+
+    const subCategory = allProductCategory.map((item) => item.subCategory).flat();
+
+
+    res.status(200).json({
+      success: true,
+      message: "Product Category Found",
+      data: subCategory
     })
 
   } catch (error) {
@@ -117,22 +156,42 @@ const deleteCategory = async (req, res, next) => {
 const addProductSubCategory = async (req, res, next) => {
   try {
 
-    const { id } = req.params
+    const { category } = req.params
     const { subCategory } = req.body
 
-    const validCategory = await ProductCategoryModel.findById(id)
+
+    // console.log("params is",req.params);
+    
+       console.log("param  baba is ",category);
+       
+
+
+
+    const validCategory = await ProductCategoryModel.findOne({ categorySlug: category })
 
     if (!validCategory) {
       return next(new AppError("Category Not Found", 400))
     }
 
+
+
+    // Initialize subCategory if it's undefined
+    if (!Array.isArray(validCategory.subCategory)) {
+      validCategory.subCategory = [];
+    }
+
+    // Check for duplication
     if (validCategory.subCategory.includes(subCategory)) {
       return next(new AppError("SubCategory already exists", 400));
     }
 
+    // Push the new subCategory
+    validCategory.subCategory.push(subCategory);
 
-    validCategory.subCategory.push(subCategory)
+    console.log("tera nama hoga",validCategory);
+    
 
+// // 
     await validCategory.save()
 
     res.status(200).json({
@@ -143,6 +202,8 @@ const addProductSubCategory = async (req, res, next) => {
 
 
   } catch (error) {
+    console.log(error);
+
     return next(new AppError(error.message, 500))
   }
 }
@@ -150,11 +211,14 @@ const addProductSubCategory = async (req, res, next) => {
 
 const editProductSubCategory = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { oldSubCategory, newSubCategory } = req.body;
+  const { name } = req.params
+
+  console.log(name);
+  
+    const { oldSubCategory, subCategory } = req.body;
 
     // Validate category existence
-    const validCategory = await ProductCategoryModel.findById(id);
+       const validCategory = await ProductCategoryModel.findOne({ categorySlug: name })
 
     if (!validCategory) {
       return next(new AppError("Product Category Not Found", 400));
@@ -168,7 +232,7 @@ const editProductSubCategory = async (req, res, next) => {
     }
 
     // Replace oldSubCategory with newSubCategory
-    validCategory.subCategory[subCategoryIndex] = newSubCategory;
+    validCategory.subCategory[subCategoryIndex] = subCategory;
 
     // Save changes
     await validCategory.save();
@@ -180,36 +244,41 @@ const editProductSubCategory = async (req, res, next) => {
     });
 
   } catch (error) {
+    console.log(error);
+    
     return next(new AppError(error.message, 500));
   }
 };
 
 
-const removeProductSubCategort=async(req,res,next)=>{
-   try{
-      
-    const {id}=req.params
-    const {subCategory}=req.body
+const removeProductSubCategort = async (req, res, next) => {
+  try {
 
-    const validCategory=await ProductCategoryModel.findById(id)
+    const { name} = req.params
+    const { subCategory } = req.body
 
-    if(!validCategory){
-        return next(new AppError("Category Not Found",404))
+    console.log("ayush mishra");
+    
+
+    const validCategory = await ProductCategoryModel.findOne({ categorySlug: name })
+
+    if (!validCategory) {
+      return next(new AppError("Category Not Found", 404))
     }
 
-    if(!subCategory){
-        return next(new AppError("Require Sub Category Found",404))
+    if (!subCategory) {
+      return next(new AppError("Require Sub Category Found", 404))
     }
 
-
-    const updatedCategory = await ProductCategoryModel.findByIdAndUpdate(
-      id,
-      { $pull: { subCategory: subCategory } }, // 🔥 Removes the subCategory from Array
+    const updatedCategory = await ProductCategoryModel.findOneAndUpdate(
+      { categorySlug: name },
+      { $pull: { subCategory: subCategory } }, // removes subCategory from the array
       { new: true }
     );
 
-    if(!updatedCategory){
-        return next(new AppError("Sub Category Not Delete",400))
+
+    if (!updatedCategory) {
+      return next(new AppError("Sub Category Not Delete", 400))
     }
 
     // if (!validCategory.subCategory.includes(subCategory)) {
@@ -223,17 +292,19 @@ const removeProductSubCategort=async(req,res,next)=>{
     // validCategory.save()
 
     res.status(200).json({
-      success:true,
-      message:"Remove Product Sub Category"
+      success: true,
+      message: "Remove Product Sub Category"
     })
 
 
 
-   }catch(error){
-      return next(new AppError(error.message,500))
-   }
+  } catch (error) {
+    console.log(error);
+    
+    return next(new AppError(error.message, 500))
+  }
 }
 
 
 
-export {addProductCategory,getProductCategory,editCategory,deleteCategory,addProductSubCategory,editProductSubCategory,removeProductSubCategort}
+export { addProductCategory, getProductCategory, editCategory, deleteCategory, addProductSubCategory, editProductSubCategory, removeProductSubCategort, getProductSubCategory }
