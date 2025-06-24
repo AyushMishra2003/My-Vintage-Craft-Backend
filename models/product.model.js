@@ -88,23 +88,23 @@ const productSchema = new Schema(
         categoryType: {
             type: String,
             enum: ["product", "theme", "brand"],
-            required: true,
+            // required: true,
         },
         categoryId: {
             type: Schema.Types.ObjectId,
-            required: true,
+            // required: true,
         },
 
         // Optional direct references (if needed separately)
-        themeCategory: {
+        themeId: {
             type: Schema.Types.ObjectId,
             ref: "Theme-Category",
         },
-        brandCategory: {
+        brandId: {
             type: Schema.Types.ObjectId,
             ref: "Brand-Category",
         },
-        productCategory: {
+        productId: {
             type: Schema.Types.ObjectId,
             ref: "ProductCategory",
         },
