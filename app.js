@@ -51,8 +51,6 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-         "http://localhost:5174",
-      "https://vintage-craft-dashboard.netlify.app",
       "https://vintage-crafts-dashboard.netlify.app/"
 
     ],
