@@ -27,13 +27,16 @@ const addProduct = async (req, res, next) => {
             productId,
             brandId,
             themeId,
+            
         } = req.body;
 
 
 
-
-
         console.log(req.body);
+        
+
+   
+        
 
 
         if (!name || !rate || !discount) {
@@ -48,7 +51,7 @@ const addProduct = async (req, res, next) => {
         let validatedThemeId = null;
 
         // ✅ Validate productId (ProductCategory)
-        if (productId) {
+      if (productId !== undefined && productId !== null && productId !== '') {
             const productCat = await ProductCategoryModel.findById(productId);
             if (!productCat) return next(new AppError("Invalid Product Category ID", 400));
 
@@ -61,20 +64,20 @@ const addProduct = async (req, res, next) => {
         }
 
         // ✅ Validate brandId
-        if (brandId) {
+        if (brandId!='undefined' && brandId!==null && brandId!== '') {
             const brandCat = await BrandModel.findById(brandId);
             if (!brandCat) return next(new AppError("Invalid Brand Category ID", 400));
             validatedBrandId = brandId;
         }
 
         // ✅ Validate themeId
-        if (themeId) {
+        if (themeId!='undefined' && themeId!==null && themeId!== '') {
             const themeCat = await ThemeModel.findById(themeId);
             if (!themeCat) return next(new AppError("Invalid Theme Category ID", 400));
             validatedThemeId = themeId;
         }
 
-        console.log("valid is", validatedProductId, validatedBrandId, validatedThemeId);
+        
 
 
         // ✅ Prepare base product data
@@ -88,6 +91,7 @@ const addProduct = async (req, res, next) => {
             slugProduct: slugify(name, { lower: true, strict: true }),
             // categoryType: categoryType1,
             // categoryId: categoryId1,
+            subCategory,
 
             productId: validatedProductId,
             brandId: validatedBrandId,
@@ -102,7 +106,7 @@ const addProduct = async (req, res, next) => {
 
 
 
-        console.log(req.files);
+
 
 
         // ✅ Upload main photo
@@ -175,7 +179,7 @@ const getProduct = async (req, res, next) => {
 
         // Fetch products with pagination
         const products = await ProductModel.find()
-            .select("title mainPhoto rate  discount isStockFull categoryType  categoryId") // only send title and photo
+            
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
@@ -208,12 +212,141 @@ const getProduct = async (req, res, next) => {
 };
 
 
+
+const getProductWithBrandCategory=async(req,res,next)=>{
+      try{
+
+        const {category}=req.params
+
+        console.log(req.params);
+        
+
+        const validBrandCategory=await BrandModel.findOne({brandSlug:category})
+
+        if(!validBrandCategory){
+             return next(new AppError("Brand Category is not Valid",400))
+        }
+
+        const allProducts=await ProductModel.find({brandId:validBrandCategory?._id})
+
+        if(!allProducts){
+             return next(new AppError("Product is not Valid",400))
+        }
+
+        
+
+  
+        
+
+        res.status(200).json({
+             success:true,
+             message:"all-brand-category",
+             data:allProducts
+        })
+
+           
+
+      }catch(error){
+        console.log(error);
+        
+         return next(new AppError(error.message,500))
+      }
+}
+
+
+
+const getProductWithThemeCategory=async(req,res,next)=>{
+      try{
+
+        const {category}=req.params
+
+        console.log(req.params);
+        
+
+        const validThemeCategory=await ThemeModel.findOne({themeSlug:category})
+
+        if(!validThemeCategory){
+             return next(new AppError("Theme Category is not Valid",400))
+        }
+
+        const allProducts=await ProductModel.find({themeId:validThemeCategory?._id})
+
+        if(!allProducts){
+             return next(new AppError("Product is not Valid",400))
+        }
+
+          
+
+        res.status(200).json({
+             success:true,
+             message:"all-brand-category",
+             data:allProducts
+        })
+
+           
+
+      }catch(error){
+        console.log(error);
+        
+         return next(new AppError(error.message,500))
+      }
+}
+
+
+const getProductWithProductCategory=async(req,res,next)=>{
+      try{
+
+        const {category,subCategory}=req.params
+
+    
+        
+
+        const validProductCategory=await ProductCategoryModel.findOne({categorySlug:category})
+
+        if(!validProductCategory){
+             return next(new AppError("Product Category is not Valid",400))
+        }
+
+        const validSubcategory=validProductCategory.subCategory.find((val)=>(slugify(val, { lower: true, strict: true }))===subCategory)
+
+        console.log("valid sub",validSubcategory);
+        
+
+        const allProducts=await ProductModel.find({subCategory:validSubcategory})
+
+        if(!allProducts){
+             return next(new AppError("Product is not Valid",400))
+        }
+
+          
+
+        res.status(200).json({
+             success:true,
+             message:"all-brand-category",
+             data:allProducts
+        })
+
+           
+
+      }catch(error){
+        console.log(error);
+        
+         return next(new AppError(error.message,500))
+      }
+}
+
+
+
 const getProductDetail = async (req, res, next) => {
     try {
 
-        const { id } = req.params
+        const { category } = req.params
 
-        const product = await ProductModel.findById(id)
+
+
+        const product = await ProductModel.findOne({slugProduct:category})
+
+      
 
         if (!product) {
             return next(new AppError("Product not Found", 400))
@@ -259,7 +392,10 @@ const editProduct = async (req, res, next) => {
 
         const existingProduct = await ProductModel.findById(id);
 
-        console.log(existingProduct);
+
+      
+        
+       
 
         if (!existingProduct) {
             return next(new AppError("Product not found", 404));
@@ -271,7 +407,7 @@ const editProduct = async (req, res, next) => {
         let validatedThemeId = null;
 
         // ✅ Validate productId (ProductCategory)
-        if (productId) {
+        if (productId && productId!='null') {
             const productCat = await ProductCategoryModel.findById(productId);
             if (!productCat) return next(new AppError("Invalid Product Category ID", 400));
 
@@ -284,14 +420,14 @@ const editProduct = async (req, res, next) => {
         }
 
         // ✅ Validate brandId
-        if (brandId) {
+        if (brandId && brandId!='null') {
             const brandCat = await BrandModel.findById(brandId);
             if (!brandCat) return next(new AppError("Invalid Brand Category ID", 400));
             validatedBrandId = brandId;
         }
 
         // ✅ Validate themeId
-        if (themeId) {
+        if (themeId && themeId!='null') {
             const themeCat = await ThemeModel.findById(themeId);
             if (!themeCat) return next(new AppError("Invalid Theme Category ID", 400));
             validatedThemeId = themeId;
@@ -365,12 +501,51 @@ const editProduct = async (req, res, next) => {
 };
 
 
+const seedRepeatedProducts = async () => {
+  try {
+    // 1. Fetch 2 base products
+    const baseProducts = await ProductModel.find().limit(2);
+
+    if (baseProducts.length < 2) {
+      return { success: false, message: "Need at least 2 products in DB." };
+    }
+
+    // 2. Prepare 30 repeated products
+    const repeatedProducts = [];
+
+    for (let i = 0; i < 30; i++) {
+      const product = baseProducts[i % 2]; // alternate between 2
+      repeatedProducts.push({
+        ...product.toObject(),
+        _id: undefined, // ensures MongoDB creates new ID
+        name: `${product.name} Copy ${i + 1}` // optional: make name unique
+      });
+    }
+
+    // 3. Insert into DB
+    const inserted = await ProductModel.insertMany(repeatedProducts);
+
+    return {
+      success: true,
+      message: `${inserted.length} products inserted successfully.`,
+      data: inserted
+    };
+  } catch (error) {
+    console.error("Seeding error:", error);
+    return { success: false, message: "Server error while seeding products." };
+  }
+};
+
 
 export {
     addProduct,
     getProduct,
     getProductDetail,
-    editProduct
+    editProduct,
+    seedRepeatedProducts,
+    getProductWithBrandCategory,
+    getProductWithThemeCategory,
+    getProductWithProductCategory
 }
 
 

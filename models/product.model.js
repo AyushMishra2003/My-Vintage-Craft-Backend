@@ -71,7 +71,7 @@ const productSchema = new Schema(
         // Slug for product URL
         slugProduct: {
             type: String,
-            unique: true,
+            // unique: true,
             lowercase: true,
             trim: true,
         },
